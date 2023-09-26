@@ -1,11 +1,15 @@
 package auth
 
 import (
+	"blogging/config"
+	"blogging/models"
+	"database/sql"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"gorm.io/gorm"
 )
 
 // Your secret key for signing the token
@@ -81,4 +85,16 @@ func GetUserEmailFromToken(tokenString string) (string, error) {
 	}
 
 	return userEmail, nil
+}
+func GetUserByEmailID(email string) (*models.User, error) {
+	var user models.User
+	err := config.DB.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, sql.ErrNoRows // User not found in the database
+		}
+		return nil, err // Other database error occurred
+	}
+
+	return &user, nil
 }

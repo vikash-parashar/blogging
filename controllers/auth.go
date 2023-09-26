@@ -4,6 +4,7 @@ package controllers
 import (
 	"blogging/auth"
 	"blogging/config"
+	"blogging/helpers"
 	"blogging/models"
 	"log"
 	"net/http"
@@ -73,6 +74,7 @@ func Login(c *gin.Context) {
 	// Query the database to find the user by email
 	if err := config.DB.Where("email = ?", loginRequest.Email).First(&user).Error; err != nil {
 		log.Println(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "please register first yourself ."})
 		return
 	}
 	if user.Email == "" {
@@ -96,9 +98,14 @@ func Login(c *gin.Context) {
 
 }
 
-// Logout handles user logout (JWT token invalidation).
+// Logout handles user logout.
 func Logout(c *gin.Context) {
-	// Implement your JWT token invalidation logic here
+	// Assuming you have access to the current user's token
+	token := helpers.GetTokenFromRequest(c)
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+	// Add the token to the blacklist (you need to implement this)
+	helpers.AddTokenToBlacklist(token)
+
+	// Respond with a success message
+	c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
 }

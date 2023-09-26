@@ -15,9 +15,15 @@ import (
 
 func CreatePost(c *gin.Context) {
 	// Fetch data from the form
-	title := c.Request.FormValue("title")
-	content := c.Request.FormValue("content")
+	// title := c.Request.FormValue("title")
+	// content := c.Request.FormValue("content")
+	var post models.Post
+	err := c.ShouldBindJSON(&post)
+	if err != nil {
+		log.Println("failed to get post data from form")
+	}
 	id := uuid.New()
+
 	token := helpers.GetTokenFromRequest(c)
 	email, err := auth.GetUserEmailFromToken(token)
 	if err != nil {
@@ -30,8 +36,8 @@ func CreatePost(c *gin.Context) {
 	// Create a new Post instance
 	newPost := models.Post{
 		ID:      id,
-		Title:   title,
-		Content: content,
+		Title:   post.Title,
+		Content: post.Content,
 		Author:  *user, // Assuming AuthorID is the foreign key for the author
 	}
 

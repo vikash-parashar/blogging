@@ -1,21 +1,27 @@
 package models
 
 import (
-	"time"
-
 	"github.com/google/uuid"
-
-	"gorm.io/gorm"
 )
 
+const (
+	Admin   string = "admin"
+	General string = "general"
+)
+
+// models/user.go
 type User struct {
-	gorm.Model
-	ID        uuid.UUID `json:"id"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;column:user_id" json:"id"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Phone     string    `json:"phone"`
 	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt time.Time `json:"deleted_at"`
+	Password  string    `json:"password"`
+	Role      string    `json:"role"`
+
+	// Relationship: a user can have many posts
+	Posts []Post `gorm:"foreignKey:AuthorID" json:"posts"`
+
+	// Relationship: a user can have many comments
+	Comments []Comment `gorm:"foreignKey:AuthorID" json:"comments"`
 }

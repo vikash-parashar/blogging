@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">My Blog</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutButton">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1>Posts</h1>
+        <div id="postContainer">
+            <!-- Posts will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Function to load the token from local storage
+        function loadToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Function to set the token in the headers
+        function setAuthHeaders(token) {
+            $.ajaxSetup({
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+        }
+
+        // Function to fetch and display posts
+        function fetchPosts() {
+            $.ajax({
+                url: '/posts', // Replace with your backend posts API endpoint
+                method: 'GET',
+                success: function (response) {
+                    // Clear the existing posts
+                    $("#postContainer").empty();
+
+                    // Display the fetched posts
+                    response.forEach(function (post) {
+                        var postHtml = `
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">${post.title}</h5>
+                                    <p class="card-text">${post.content}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">Posted by: User ${post.author_id}</h6>
+                                    <button class="btn btn-primary" onclick="editPost('${post.id}')">Edit Post</button>
+                                    <button class="btn btn-danger" onclick="deletePost('${post.id}')">Delete Post</button>
+                                    <button class="btn btn-success" onclick="createComment('${post.id}')">Create Comment</button>
+                                    <button class="btn btn-warning" onclick="editComment('${post.id}')">Edit Comment</button>
+                                    <button class="btn btn-danger" onclick="deleteComment('${post.id}')">Delete Comment</button>
+                                </div>
+                            </div>
+                        `;
+                        $("#postContainer").append(postHtml);
+                    });
+                },
+                error: function () {
+                    console.error('Failed to fetch posts.');
+                }
+            });
+        }
+
+        // Load the token and set it in the headers when the page loads
+        $(document).ready(function () {
+            var token = loadToken();
+            if (token) {
+                setAuthHeaders(token);
+            } else {
+                // If no token is found, redirect to the login page
+                window.location.href = '/login'; // Replace with the login page URL
+            }
+
+            // Fetch and display posts when the page loads
+            fetchPosts();
+        });
+
+        // Event listener for the logout button
+        $("#logoutButton").click(function (e) {
+            e.preventDefault();
+
+            // Make a POST request to the backend /logout API
+            $.ajax({
+                url: '/logout', // Replace with your backend logout API endpoint
+                method: 'POST',
+                success: function (response) {
+                    // Handle the response from the /logout API
+                    console.log('Logout Response:', response);
+
+                    // Redirect to the login page or perform other actions as needed
+                    window.location.href = '/login'; // Replace with the desired redirect URL
+                },
+                error: function () {
+                    // Handle errors if the logout request fails
+                    console.error('Logout failed');
+                }
+            });
+        });
+
+        // Function to edit a post (replace with your logic)
+        function editPost(postId) {
+            // Implement your edit post logic here
+            // After editing, fetch and display the updated posts using fetchPosts()
+        }
+
+        // Function to delete a post (replace with your logic)
+        function deletePost(postId) {
+            // Implement your delete post logic here
+            // After deleting, fetch and display the updated posts using fetchPosts()
+        }
+
+        // Function to create a comment (replace with your logic)
+        function createComment(postId) {
+            // Implement your create comment logic here
+            // After creating, fetch and display the updated posts using fetchPosts()
+        }
+
+        // Function to edit a comment (replace with your logic)
+        function editComment(postId) {
+            // Implement your edit comment logic here
+            // After editing, fetch and display the updated posts using fetchPosts()
+        }
+
+        // Function to delete a comment (replace with your logic)
+        function deleteComment(postId) {
+            // Implement your delete comment logic here
+            // After deleting, fetch and display the updated posts using fetchPosts()
+        }
+    </script>
+</body>
+
+</html>

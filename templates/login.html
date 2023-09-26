@@ -75,11 +75,13 @@
             clearToken();
         });
 
-        // Rest of your JavaScript code for the login page
-        // ...
+
     </script>
 
+    <!-- ... (other HTML and styles) ... -->
+
     <script>
+
         function togglePasswordVisibility(passwordFieldId) {
             var passwordField = $("#" + passwordFieldId);
             var passwordToggle = $("#passwordToggle");
@@ -92,71 +94,116 @@
                 passwordToggle.find("i").removeClass("fa-eye-slash").addClass("fa-eye");
             }
         }
+        // Function to load the token from local storage
+        function loadToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Function to set the token in the headers
+        function setAuthHeaders(token) {
+            $.ajaxSetup({
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+        }
+
+        // Function to display a success message
+        function showSuccessMessage(message) {
+            $("#responseMessage").html('<div class="alert alert-success">' + message + '</div>');
+        }
+
+        // Function to display an error message
+        function showErrorMessage(message) {
+            $("#responseMessage").html('<div class="alert alert-danger">' + message + '</div>');
+        }
+
+        // Load the token and set it in the headers when the page loads
         $(document).ready(function () {
-            // Form submission
-            $("#loginForm").submit(function (e) {
-                e.preventDefault();
+            var token = loadToken();
+            if (token) {
+                setAuthHeaders(token);
+            } else {
+                // If no token is found, redirect to the login page
+                window.location.href = '/login'; // Replace with the login page URL
+            }
+        });
 
-                // Get form values
-                var email = $("#email").val(); // Assuming your input field has the ID "email"
-                var password = $("#password").val(); // Assuming your input field has the ID "email"
+        // Event listener for the logout button
+        $("#logoutButton").click(function (e) {
+            e.preventDefault();
 
-                // Clear any previous error messages
-                $("#responseMessage").html('');
+            // Make a POST request to the backend /logout API
+            $.ajax({
+                url: '/logout', // Replace with your backend logout API endpoint
+                method: 'POST',
+                success: function (response) {
+                    // Handle the response from the /logout API
+                    console.log('Logout Response:', response);
 
-                // Client-side validation (you can add more checks)
-                if (!email) {
-                    $("#responseMessage").html('<div class="alert alert-danger">email field value is missing .</div>');
-                    return;
+                    // Redirect to the login page or perform other actions as needed
+                    window.location.href = '/login'; // Replace with the desired redirect URL
+                },
+                error: function () {
+                    // Handle errors if the logout request fails
+                    console.error('Logout failed');
                 }
-                // Client-side validation (you can add more checks)
-                if (!password) {
-                    $("#responseMessage").html('<div class="alert alert-danger">password field value is missing .</div>');
-                    return;
+            });
+        });
+
+        // Form submission
+        $("#loginForm").submit(function (e) {
+            e.preventDefault();
+
+            // Get form values
+            var email = $("#email").val();
+            var password = $("#password").val();
+
+            // Clear any previous error messages
+            $("#responseMessage").html('');
+
+            // Client-side validation (you can add more checks)
+            if (!email || !password) {
+                showErrorMessage('Please provide both email and password.');
+                return;
+            }
+
+            // Remove the message after 2 seconds (2000 milliseconds)
+            setTimeout(function () {
+                $("#responseMessage").empty();
+            }, 2000);
+
+            // Send the JSON data to the backend
+            $.ajax({
+                url: '/login',
+                method: 'POST',
+                data: {
+                    email: email,
+                    password: password
+                },
+                success: function (response) {
+                    showSuccessMessage('You are now logged in.');
+                    var token = response.token;
+                    console.log('Received token:', token);
+                    localStorage.setItem('token', token);
+                    console.log('Token stored in local storage:', token);
+
+                    // Set the token in the Authorization header for future API requests
+                    setAuthHeaders(token);
+
+                    // Redirect the user to the homepage
+                    window.location.href = '/'; // Replace with the URL of your homepage
+                    console.log('Redirecting to homepage');
+                },
+                error: function (response) {
+                    showErrorMessage('Invalid credentials. Please try again.');
                 }
-                // Remove the message after 2 seconds (2000 milliseconds)
-                setTimeout(function () {
-                    $("#responseMessage").empty();
-                }, 1000);
-                // Send the JSON data to the backend
-                $.ajax({
-                    url: '/login',
-                    method: 'POST',
-                    data: {
-                        email: email,
-                        password: password
-                    },
-                    success: function (response) {
-                        $("#responseMessage").html('<div class="alert alert-success">' + `You Are Now Logged In .` + '</div>');
-                        // Assuming you receive the token in the response from the backend
-                        var token = response.token; // Replace 'response.token' with the actual token variable from your response
-                        console.log('Received token:', token);
-
-                        // Store the token in local storage
-                        localStorage.setItem('token', token);
-                        console.log('Token stored in local storage:', token);
-
-                        // Set the token in the Authorization header for future API requests (example using jQuery AJAX)
-                        $.ajaxSetup({
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        // Redirect the user to the homepage
-                        window.location.href = '/'; // Replace '/homepage' with the URL of your homepage
-                        console.log('Redirecting to homepage');
-
-
-                    },
-                    error: function (response) {
-
-                        $("#responseMessage").html('<div class="alert alert-danger">' + `Please Check Your Credentials And Try Again .` + '</div>');
-                    }
-                });
             });
         });
     </script>
+
+    <!-- ... (rest of the HTML) ... -->
+
 
 
 </body>

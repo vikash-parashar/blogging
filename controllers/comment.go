@@ -12,14 +12,14 @@ import (
 
 func CreateComment(c *gin.Context) {
 	// Fetch data from the form
-	content := c.Request.FormValue("content")
+	// content := c.Request.FormValue("content")
 	// postID := c.Request.FormValue("post_id") // Assuming you have a field for post_id in the form
 	id := uuid.New()
 
 	// Create a new Comment instance
 	newComment := models.Comment{
-		ID:      id,
-		Content: content,
+		ID: id,
+		// Content: content,
 		// Post:    models.Post{ID: postID}, // Assuming PostID is the foreign key for the post
 	}
 
@@ -32,10 +32,10 @@ func CreateComment(c *gin.Context) {
 
 func UpdateComment(c *gin.Context) {
 	// Fetch comment ID from URL query params
-	commentID := c.Query("comment_id")
+	commentID := c.DefaultQuery("id", "")
 
 	// Fetch data from the form
-	content := c.Request.FormValue("content")
+	// content := c.Request.FormValue("content")
 
 	// Find the comment by ID
 	var comment models.Comment
@@ -46,7 +46,7 @@ func UpdateComment(c *gin.Context) {
 	}
 
 	// Update the comment with new data
-	comment.Content = content
+	// comment.Content = content
 
 	// Save the updated comment to the database
 	config.DB.Save(&comment)
@@ -57,7 +57,7 @@ func UpdateComment(c *gin.Context) {
 
 func DeleteComment(c *gin.Context) {
 	// Fetch comment ID from request params
-	commentID := c.Param("comment_id")
+	commentID := c.DefaultQuery("id", "")
 
 	// Find the comment by ID
 	var comment models.Comment

@@ -6,7 +6,7 @@ import (
 	"blogging/config"
 	"blogging/helpers"
 	"blogging/models"
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,33 +14,31 @@ import (
 )
 
 func CreatePost(c *gin.Context) {
-	// Fetch data from the form
-	// title := c.Request.FormValue("title")
-	// content := c.Request.FormValue("content")
+	// Fetch data from the JSON request body
 	var post models.Post
 	err := c.ShouldBindJSON(&post)
 	if err != nil {
-		log.Println("failed to get post data from form")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON data"})
+		return
 	}
-	id := uuid.New()
 
+	// Get the user details from the token
 	token := helpers.GetTokenFromRequest(c)
-	email, err := auth.GetUserEmailFromToken(token)
+	user, err := auth.GetUserFromToken(token)
 	if err != nil {
-		log.Println("failed to get user email from token string")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
 	}
-	user, err := auth.GetUserByEmailID(email)
-	if err != nil {
-		log.Println("failed to get user from db based on email id")
-	}
-	// Create a new Post instance
+
+	// Create a new Post instance and associate it with the user
+	id := uuid.New()
 	newPost := models.Post{
 		ID:      id,
 		Title:   post.Title,
 		Content: post.Content,
-		Author:  *user, // Assuming AuthorID is the foreign key for the author
+		Author:  user, // Associate the post with the user
 	}
-
+	fmt.Println(newPost)
 	// Save the new post to the database
 	config.DB.Create(&newPost)
 
@@ -50,7 +48,7 @@ func CreatePost(c *gin.Context) {
 
 func UpdatePost(c *gin.Context) {
 
-	postID := c.Query("post_id")
+	postID := c.DefaultQuery("id", "")
 
 	// Fetch data from the form
 	title := c.Request.FormValue("title")
@@ -77,7 +75,7 @@ func UpdatePost(c *gin.Context) {
 
 func DeletePost(c *gin.Context) {
 	// Fetch post ID from request params
-	postID := c.Param("post_id")
+	postID := c.DefaultQuery("id", "")
 
 	// Find the post by ID
 	var post models.Post

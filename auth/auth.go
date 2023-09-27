@@ -1,15 +1,13 @@
 package auth
 
 import (
-	"blogging/config"
 	"blogging/models"
-	"database/sql"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
+	"github.com/google/uuid"
 )
 
 // Your secret key for signing the token
@@ -17,19 +15,22 @@ var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
 // CustomClaims is a custom struct that includes custom claims in the token.
 type CustomClaims struct {
-	UserID    string `json:"user_id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
+	UserID    uuid.UUID `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	Role      string    `json:"role"`
 	jwt.StandardClaims
 }
 
-func CreateToken(email, role string) (string, error) {
+func CreateToken(u models.User) (string, error) {
 	// Create custom claims
 	claims := CustomClaims{
-		Email: email,
-		Role:  role,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Role:      u.Role,
+		UserID:    u.ID,
 		StandardClaims: jwt.StandardClaims{
 			// Set expiration time (24 hours)
 			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
@@ -72,29 +73,22 @@ func ParseToken(tokenString string) (*CustomClaims, error) {
 	return claims, nil
 }
 
-func GetUserEmailFromToken(tokenString string) (string, error) {
+func GetUserFromToken(tokenString string) (models.User, error) {
+	var user models.User
 	claims, err := ParseToken(tokenString)
 	if err != nil {
-		return "", err
+		return user, err
 	}
 
 	// Extract the email from the custom claims
-	userEmail := claims.Email
-	if userEmail == "" {
-		return "", fmt.Errorf("email not found in token claims")
+	user.ID = claims.UserID
+	user.Email = claims.Email
+	user.FirstName = claims.FirstName
+	user.LastName = claims.LastName
+	user.ID = claims.UserID
+	if user.Email == "" {
+		return user, fmt.Errorf("email not found in token claims")
 	}
 
-	return userEmail, nil
-}
-func GetUserByEmailID(email string) (*models.User, error) {
-	var user models.User
-	err := config.DB.Where("email = ?", email).First(&user).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, sql.ErrNoRows // User not found in the database
-		}
-		return nil, err // Other database error occurred
-	}
-
-	return &user, nil
+	return user, nil
 }

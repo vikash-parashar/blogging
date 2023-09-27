@@ -4,14 +4,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// models/comment.go
 type Comment struct {
-	ID      uuid.UUID `gorm:"type:uuid;primary_key;column:comment_id" json:"id"`
-	Content string    `json:"content"`
+	ID   uuid.UUID `gorm:"type:uuid;primary_key;column:comment_id" json:"id"`
+	Text string    `json:"text"`
 
 	// Relationship: each comment belongs to a user
-	Author User `gorm:"foreignKey:AuthorID" json:"author"`
+	Author User `gorm:"foreignKey:user_id" json:"user"`
 
 	// Relationship: each comment belongs to a post
-	Post Post `gorm:"foreignKey:PostID" json:"post"`
+	Post Post `gorm:"foreignKey:post_id" json:"post"`
 }

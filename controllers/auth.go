@@ -88,7 +88,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Generate a JWT token (you need to implement your JWT logic here)
-	tokenString, err := auth.CreateToken(user.Email, user.Role)
+	tokenString, err := auth.CreateToken(user)
 	if err != nil {
 		log.Println("failed to generate jwt token")
 	}

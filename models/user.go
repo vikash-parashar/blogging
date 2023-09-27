@@ -9,7 +9,6 @@ const (
 	General string = "general"
 )
 
-// models/user.go
 type User struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;column:user_id" json:"id"`
 	FirstName string    `json:"first_name"`
@@ -20,8 +19,8 @@ type User struct {
 	Role      string    `json:"role"`
 
 	// Relationship: a user can have many posts
-	Posts []Post `gorm:"foreignKey:AuthorID" json:"posts"`
+	Posts []Post `gorm:"foreignKey:user_id" json:"posts"`
 
 	// Relationship: a user can have many comments
-	Comments []Comment `gorm:"foreignKey:AuthorID" json:"comments"`
+	Comments []Comment `gorm:"foreignKey:user_id" json:"comments"`
 }

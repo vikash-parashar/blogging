@@ -66,6 +66,108 @@
     </div>
 
 
+    <!-- Create a modal for editing a post -->
+    <div class="modal fade" id="editPostModal" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPostModalLabel">Edit Post</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Create a form for editing post details -->
+                    <form id="editPostForm">
+                        <div class="form-group">
+                            <label for="editPostTitle">Title</label>
+                            <input type="text" class="form-control" id="editPostTitle" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPostContent">Content</label>
+                            <textarea class="form-control" id="editPostContent" name="content" rows="4"
+                                required></textarea>
+                        </div>
+                        <!-- Hidden input field to store the post ID -->
+                        <input type="hidden" id="editPostId" name="postId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!-- Add an "Update" button to submit the updated post data -->
+                    <button type="button" class="btn btn-primary" id="updatePostButton">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Create a modal for creating a comment -->
+    <div class="modal fade" id="createCommentModal" tabindex="-1" role="dialog"
+        aria-labelledby="createCommentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCommentModalLabel">Create a New Comment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Create a form for entering comment details -->
+                    <form id="createCommentForm">
+                        <div class="form-group">
+                            <label for="commentText">Comment</label>
+                            <textarea class="form-control" id="commentText" name="text" rows="4" required></textarea>
+                        </div>
+                        <!-- Hidden input field to store the post ID -->
+                        <input type="hidden" id="commentPostId" name="postId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!-- Add a "Create" button to submit the comment data -->
+                    <button type="button" class="btn btn-primary" id="createCommentButton">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create a modal for editing a comment -->
+    <div class="modal fade" id="editCommentModal" tabindex="-1" role="dialog" aria-labelledby="editCommentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCommentModalLabel">Edit Comment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Create a form for editing comment details -->
+                    <form id="editCommentForm">
+                        <div class="form-group">
+                            <label for="editCommentText">Comment</label>
+                            <textarea class="form-control" id="editCommentText" name="text" rows="4"
+                                required></textarea>
+                        </div>
+                        <!-- Hidden input field to store the comment ID -->
+                        <input type="hidden" id="editCommentId" name="commentId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!-- Add an "Update" button to submit the updated comment data -->
+                    <button type="button" class="btn btn-primary" id="updateCommentButton">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <div class="container mt-5">
         <h1>Posts</h1>
         <div id="postContainer">
@@ -94,6 +196,56 @@
             $("#createPostModal").modal("hide");
         });
         // Function to load the token from local storage
+
+
+        $("#createCommentButton").click(function () {
+            // Get the comment data from the form
+            var commentData = {
+                text: $("#commentText").val()
+            };
+
+            var postId = $("#postId").val();
+
+            // Call the function to create a comment with the commentData
+            createComment(postId, commentData);
+            $("#createCommentModal").modal("hide");
+        });
+
+
+
+
+        $("#editPostButton").click(function () {
+            // Get the updated post data from the form
+            var updatedData = {
+                title: $("#editPostTitle").val(),
+                content: $("#editPostContent").val()
+            };
+
+            var postId = $("#editPostId").val();
+
+            // Call the function to edit the post with the updated data
+            editPost(postId, updatedData);
+
+            // Close the modal
+            $("#editPostModal").modal("hide");
+        });
+
+
+        // Assume you have an "Edit Comment" button for each comment in your UI.
+        $(".editCommentButton").click(function () {
+            // Get the updated post data from the form
+            var updatedData = {
+                text: $("#editCommentText").val(),
+
+            }
+            var commentId = $("#editCommentId").val();
+
+            // Call the function to edit the post with the updated data
+            editComment(commentId, updatedData);
+            $("#editCommentModal").modal("hide");
+        });
+
+
         function loadToken() {
             return localStorage.getItem('token');
         }
@@ -107,43 +259,9 @@
             });
         }
 
-        // // Function to fetch and display posts
-        // function fetchPosts() {
-        //     $.ajax({
-        //         url: '/posts', // Replace with your backend posts API endpoint
-        //         method: 'GET',
-        //         success: function (response) {
-        //             // Clear the existing posts
-        //             $("#postContainer").empty();
-
-        //             // Display the fetched posts
-        //             response.forEach(function (post) {
-        //                 var postHtml = `
-        //                     <div class="card mt-3">
-        //                         <div class="card-body">
-        //                             <h5 class="card-title">${post.title}</h5>
-        //                             <p class="card-text">${post.content}</p>
-        //                             <h6 class="card-subtitle mb-2 text-muted">Posted by: User ${post.author_id}</h6>
-        //                             <button class="btn btn-primary" onclick="editPost('${post.id}')">Edit Post</button>
-        //                             <button class="btn btn-danger" onclick="deletePost('${post.id}')">Delete Post</button>
-        //                             <button class="btn btn-success" onclick="createComment('${post.id}')">Create Comment</button>
-        //                             <button class="btn btn-warning" onclick="editComment('${post.id}')">Edit Comment</button>
-        //                             <button class="btn btn-danger" onclick="deleteComment('${post.id}')">Delete Comment</button>
-        //                         </div>
-        //                     </div>
-        //                 `;
-        //                 $("#postContainer").append(postHtml);
-        //             });
-        //         },
-        //         error: function () {
-        //             console.error('Failed to fetch posts.');
-        //         }
-        //     });
-        // }
-
         // Load the token and set it in the headers when the page loads
         $(document).ready(function () {
-            
+
             if (token) {
                 setAuthHeaders(token);
                 // Fetch and display posts when the page loads
@@ -195,155 +313,26 @@
                 var postHtml = `
                 <div class="card mt-3">
                     <div class="card-body">
-                        <h5 class="card-title">${post.title}</h5>
-                        <p class="card-text">${post.content}</p>
-                        <h6 class="card-subtitle mb-2 text-muted">Posted by: User ${post.author_id}</h6>
-                        <button class="btn btn-primary" onclick="editPost('${post.id}')">Edit Post</button>
-                        <button class="btn btn-danger" onclick="deletePost('${post.id}')">Delete Post</button>
-                        <button class="btn btn-success" onclick="createComment('${post.id}')">Create Comment</button>
-                        <button class="btn btn-warning" onclick="editComment('${post.id}')">Edit Comment</button>
-                        <button class="btn btn-danger" onclick="deleteComment('${post.id}')">Delete Comment</button>
+                        <h5 class="card-title">Title : ${post.title}</h5>
+                        <p class="card-text">Description : ${post.content}</p>
+                        <button class="btn btn-primary mt-3" data-toggle="modal" data-target="#editPostModal">Edit Post</button>
+                        <button class="btn btn-danger mt-3" onclick="deletePost('${post.id}')">Delete Post</button>
+                        <p class="card-text">Comments : 
+                        {{range .comments}}
+                            <ol>
+                                <li>${Comment.text}</li>
+                            </ul>
+                        {{end}}
+                        </p>
+                        <button class="btn btn-success mt-3" data-toggle="modal" data-target="#createCommentModal">Create Comment</button>
+                        <button class="btn btn-primary mt-3" data-toggle="modal" data-target="#editCommentModal">Edit Comment</button>
+                        <button class="btn btn-danger mt-3" onclick="deleteComment('${post.id}')">Delete Comment</button>
                     </div>
                 </div>
             `;
                 $("#postContainer").append(postHtml);
             });
         }
-
-        // Function to create a new post
-        function createPost(postData) {
-            $.ajax({
-                url: '/posts/create',
-                type: 'POST',
-                headers: setAuthHeader(),
-                data: JSON.stringify(postData),
-                contentType: 'application/json',
-                success: function (response) {
-                    if (response.status === 200) {
-                        // Post created successfully, you can handle this as needed
-                        fetchPosts();
-                    } else {
-                        // Handle errors, e.g., display an error message
-                        console.error('Failed to create post');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        // Function to update an existing post
-        function editPost(postId, postData) {
-            $.ajax({
-                url: `/posts/?id=${postId}`,
-                type: 'PUT',
-                headers: setAuthHeader(),
-                data: JSON.stringify(postData),
-                contentType: 'application/json',
-                success: function (response) {
-                    if (response.status === 200) {
-                        // Post updated successfully, you can handle this as needed
-                        fetchPosts();
-                    } else {
-                        // Handle errors, e.g., display an error message
-                        console.error('Failed to update post');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        // Function to delete a post
-        function deletePost(postId) {
-            $.ajax({
-                url: `/posts/?id=${postId}`,
-                type: 'DELETE',
-                headers: setAuthHeader(),
-                success: function (response) {
-                    if (response.status === 200) {
-                        // Post deleted successfully, you can handle this as needed
-                        fetchPosts();
-                    } else {
-                        // Handle errors, e.g., display an error message
-                        console.error('Failed to delete post');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        // Function to create a comment on a post
-        function createComment(postId, commentData) {
-            $.ajax({
-                url: `/comments/create/?id=${postId}`,
-                type: 'POST',
-                headers: setAuthHeader(),
-                data: JSON.stringify(commentData),
-                contentType: 'application/json',
-                success: function (response) {
-                    if (response.status === 200) {
-                        // Comment created successfully, you can handle this as needed
-                        fetchPosts();
-                    } else {
-                        // Handle errors, e.g., display an error message
-                        console.error('Failed to create comment');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        // Function to edit a comment on a post
-        function editComment(postId, commentId, commentData) {
-            $.ajax({
-                url: `/comments/?id=${commentId}`,
-                type: 'PUT',
-                headers: setAuthHeader(),
-                data: JSON.stringify(commentData),
-                contentType: 'application/json',
-                success: function (response) {
-                    if (response.status === 200) {
-                        // Comment edited successfully, you can handle this as needed
-                        fetchPosts();
-                    } else {
-                        // Handle errors, e.g., display an error message
-                        console.error('Failed to edit comment');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        // Function to delete a comment on a post
-        function deleteComment(postId, commentId) {
-            $.ajax({
-                url: `/comments/?id=${commentId}`,
-                type: 'DELETE',
-                headers: setAuthHeader(),
-                success: function (response) {
-                    if (response.status === 200) {
-                        // Comment deleted successfully, you can handle this as needed
-                        fetchPosts();
-                    } else {
-                        // Handle errors, e.g., display an error message
-                        console.error('Failed to delete comment');
-                    }
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
         // Function to fetch and display all posts
         function getAllPosts() {
             $.ajax({
@@ -363,6 +352,156 @@
             });
         }
 
+        // Function to create a new post
+        function createPost(postData) {
+            $.ajax({
+                url: '/posts/new',
+                type: 'POST',
+                headers: setAuthHeader(),
+                data: JSON.stringify(postData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.status === 200) {
+                        // Update the UI to display the posts (you can customize this part)
+                        displayPosts(posts);
+                        // Handle the retrieved posts, e.g., display them on the UI
+                        console.log(posts);
+                    } else {
+                        // Handle errors, e.g., display an error message
+                        console.error('Failed to create post');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Function to update an existing post
+        function editPost(postId, postData) {
+            $.ajax({
+                url: `/posts/edit/?id=${postId}`,
+                type: 'PUT',
+                headers: setAuthHeader(),
+                data: JSON.stringify(postData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.status === 200) {
+                        // Update the UI to display the posts (you can customize this part)
+                        displayPosts(posts);
+                        // Handle the retrieved posts, e.g., display them on the UI
+                        console.log(posts);
+                    } else {
+                        // Handle errors, e.g., display an error message
+                        console.error('Failed to update post');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Function to delete a post
+        function deletePost(postId) {
+            $.ajax({
+                url: `/posts/delete/?id=${postId}`,
+                type: 'DELETE',
+                headers: setAuthHeader(),
+                success: function (response) {
+                    if (response.status === 200) {
+                        // Update the UI to display the posts (you can customize this part)
+                        displayPosts(posts);
+                        // Handle the retrieved posts, e.g., display them on the UI
+                        console.log(posts);
+                    } else {
+                        // Handle errors, e.g., display an error message
+                        console.error('Failed to delete post');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Function to create a comment on a post
+        function createComment(commentData) {
+            $.ajax({
+                url: `/comments/new`,
+                type: 'POST',
+                headers: setAuthHeader(),
+                data: JSON.stringify(commentData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.status === 200) {
+                        // Update the UI to display the posts (you can customize this part)
+                        displayPosts(posts);
+                        // Handle the retrieved posts, e.g., display them on the UI
+                        getAllCommentsForPost()
+                        console.log(posts);
+                    } else {
+                        // Handle errors, e.g., display an error message
+                        console.error('Failed to create comment');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Function to edit a comment on a post
+        function editComment(commentId, commentData) {
+            $.ajax({
+                url: `/comments/edit/?id=${commentId}`,
+                type: 'PUT',
+                headers: setAuthHeader(),
+                data: JSON.stringify(commentData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.status === 200) {
+                        // Update the UI to display the posts (you can customize this part)
+                        displayPosts(posts);
+                        getAllCommentsForPost()
+                        // Handle the retrieved posts, e.g., display them on the UI
+                        console.log(posts);
+                    } else {
+                        // Handle errors, e.g., display an error message
+                        console.error('Failed to edit comment');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Function to delete a comment on a post
+        function deleteComment(commentId) {
+            $.ajax({
+                url: `/comments/delete/?id=${commentId}`,
+                type: 'DELETE',
+                headers: setAuthHeader(),
+                success: function (response) {
+                    if (response.status === 200) {
+                        // Update the UI to display the posts (you can customize this part)
+                        displayPosts(posts);
+                        getAllCommentsForPost()
+                        // Handle the retrieved posts, e.g., display them on the UI
+                        console.log(posts);
+                    } else {
+                        // Handle errors, e.g., display an error message
+                        console.error('Failed to delete comment');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+
         // Function to get all comments for a post
         function getAllCommentsForPost() {
             $.ajax({
@@ -370,8 +509,11 @@
                 type: 'GET',
                 headers: setAuthHeader(),
                 success: function (comments) {
-                    // Handle the retrieved comments, e.g., display them on the UI
-                    console.log(comments);
+                    // Handle the retrieved posts, e.g., display them on the UI
+                    console.log(posts);
+
+                    // Update the UI to display the posts (you can customize this part)
+                    displayPosts(posts);
                 },
                 error: function (error) {
                     console.error('Error:', error);

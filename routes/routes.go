@@ -28,18 +28,18 @@ func SetupRouter() *gin.Engine {
 	// Routes for posts
 	post := r.Group("/posts")
 	{
-		post.POST("/create", authMiddleware, controllers.CreatePost)
-		post.PUT("/:id", authMiddleware, controllers.UpdatePost)
-		post.DELETE("/:id", authMiddleware, controllers.DeletePost)
+		post.POST("/new", authMiddleware, controllers.CreatePost)
+		post.PUT("/edit", authMiddleware, controllers.UpdatePost)
+		post.DELETE("/delete", authMiddleware, controllers.DeletePost)
 		post.GET("/all", authMiddleware, controllers.GetAllPosts)
 	}
 
 	// Routes for comments
 	comment := r.Group("/comments")
 	{
-		comment.POST("/create", authMiddleware, controllers.CreateComment)
-		comment.PUT("/:id", authMiddleware, controllers.UpdateComment)
-		comment.DELETE("/:id", authMiddleware, controllers.DeleteComment)
+		comment.POST("/new", authMiddleware, controllers.CreateComment)
+		comment.PUT("/edit", authMiddleware, controllers.UpdateComment)
+		comment.DELETE("/delete", authMiddleware, controllers.DeleteComment)
 		comment.GET("/all", authMiddleware, controllers.GetAllComments)
 	}
 
